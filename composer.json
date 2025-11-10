@@ -15,7 +15,7 @@
     "license": "BSD-3-Clause",
     "require": {
         "ext-openssl": "*",
-        "silverstripe/framework": "^^6.0",
+        "silverstripe/framework": "^6.0",
         "silverstripe/admin": "^3.0",
         "firebase/php-jwt": "^6.11"
     },
