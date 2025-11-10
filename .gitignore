@@ -1,0 +1,12 @@
+node_modules/
+/vendor/
+.DS_Store
+composer.lock
+*.js.map
+*.css.map
+yarn-error.log
+/public/
+/.phpunit.cache/
+.phpunit.cache
+.env
+.phpunit.result.cache

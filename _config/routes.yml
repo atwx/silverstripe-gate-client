@@ -1,0 +1,6 @@
+---
+name: silvergateclientroutes
+---
+SilverStripe\Control\Director:
+  rules:
+    '_silvergateclient': 'Atwx\SilverGateClient\Controllers\LoginController'
