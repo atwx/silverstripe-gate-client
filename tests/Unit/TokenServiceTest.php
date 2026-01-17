@@ -2,6 +2,7 @@
 
 namespace Atwx\SilverGateClient\Tests\Unit;
 
+use SilverStripe\Core\Environment;
 use SilverStripe\Dev\SapphireTest;
 use SilverStripe\Core\Config\Config;
 use Atwx\SilverGateClient\Services\TokenService;
@@ -99,6 +100,23 @@ PEM;
     {
         // configure the TokenService to use publicKey1 and token max age 60s
         Config::modify()->set(TokenService::class, 'public_key', self::$publicKey1);
+        Config::modify()->set(TokenService::class, 'token_max_age_seconds', 60);
+
+        $payload = [
+            'sub' => '1234567890',
+            'name' => 'John Doe',
+            'iat' => time(),
+        ];
+
+        $jwt = JWT::encode($payload, self::$privateKey1, 'RS256');
+
+        $service = new TokenService();
+        $this->assertTrue($service->validateJwt($jwt));
+    }
+
+    public function testValidateJwtReturnsTrueForValidEnvironmentToken()
+    {
+        Environment::setEnv('SILVERGATECLIENT_PUBLIC_KEY', self::$publicKey1);
         Config::modify()->set(TokenService::class, 'token_max_age_seconds', 60);
 
         $payload = [

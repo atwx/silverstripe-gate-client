@@ -5,6 +5,7 @@ namespace Atwx\SilverGateClient\Services;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use SilverStripe\Core\Config\Configurable;
+use SilverStripe\Core\Environment;
 use SilverStripe\Core\Extensible;
 use SilverStripe\Core\Injector\Injectable;
 
@@ -30,7 +31,7 @@ class TokenService
 
     protected function getPublicKey()
     {
-        return $this->config()->get('public_key');
+        return Environment::getEnv('SILVERGATECLIENT_PUBLIC_KEY') ?: $this->config()->get('public_key');
     }
 
     public function validateJwt(string $jwt): bool

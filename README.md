@@ -35,6 +35,12 @@ Atwx\SilverGateClient\Services\LoginService:
 
 Note: the key must be in PEM format. Tokens should be signed by the central system that issues them with the corresponding private key (for example RS256).
 
+You can also use the `.env` to configure the public key. Make sure to escape newlines using \n:
+
+```env
+SILVERGATECLIENT_PUBLIC_KEY="-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----"
+```
+
 More advanced configuration:
 
 ```yaml
