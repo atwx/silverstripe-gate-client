@@ -106,7 +106,10 @@ PEM;
         $response = $this->get('/_silvergateclient/token/' . $b64);
 
         // Should be redirected to /admin
-        $this->assertTrue($response->isRedirect());
-        $this->assertStringContainsString('/admin', $response->getHeader('Location'));
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertStringContainsString(
+            '<meta http-equiv="refresh" content="0; url=/admin">',
+            $response->getBody()
+        );
     }
 }

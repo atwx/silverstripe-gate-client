@@ -6,6 +6,7 @@ use Atwx\SilverGateClient\Services\LoginService;
 use Atwx\SilverGateClient\Services\TokenService;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\HTTPRequest;
+use SilverStripe\Model\ArrayData;
 
 class LoginController extends Controller
 {
@@ -42,6 +43,8 @@ class LoginController extends Controller
             return $this->httpError(403, 'No valid user to login was found.');
         }
 
-        return $this->redirect(LoginService::singleton()->getMemberRedirectUrl($loginMember));
+        return ArrayData::create([
+            'Link' => LoginService::singleton()->getRedirectUrl() ?: '/'
+        ])->renderWith('Atwx\SilverGateClient\LoginRedirectPage');
     }
 }

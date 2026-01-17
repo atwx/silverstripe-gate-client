@@ -3,6 +3,7 @@
 namespace Atwx\SilverGateClient\Services;
 
 use SilverStripe\Admin\AdminRootController;
+use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Config\Configurable;
 use SilverStripe\Core\Extensible;
 use SilverStripe\Core\Injector\Injectable;
@@ -87,20 +88,27 @@ class LoginService
         return null;
     }
 
-    public function getMemberRedirectUrl(Member $member)
+    public function getRedirectUrl()
     {
         $loginDest = $this->config()->get('login_dest');
         if ($loginDest) {
-            return $loginDest;
+            return $this->addLeadingSlash($loginDest);
         }
 
         $defaultLoginDest = Security::config()->get('default_login_dest');
         if ($defaultLoginDest) {
-            return $defaultLoginDest;
+            return $this->addLeadingSlash($defaultLoginDest);
         }
 
-        return Permission::check('CMS_ACCESS')
+        $finalDest = Permission::check('CMS_ACCESS')
             ? AdminRootController::admin_url()
-            : '';
+            : '/';
+
+        return $this->addLeadingSlash($finalDest);
+    }
+
+    protected function addLeadingSlash(string $url): string
+    {
+        return '/' . ltrim($url, '/');
     }
 }

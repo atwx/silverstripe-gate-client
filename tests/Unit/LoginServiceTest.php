@@ -2,6 +2,7 @@
 
 namespace Atwx\SilverGateClient\Tests\Unit;
 
+use ReflectionClass;
 use SilverStripe\Dev\SapphireTest;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Security\Member;
@@ -111,5 +112,16 @@ class LoginServiceTest extends SapphireTest
         $this->assertEquals($member->ID, $returned->ID);
         $this->assertInstanceOf(Member::class, $current);
         $this->assertEquals($member->ID, $current->ID);
+    }
+
+    public function testAddLeadingSlash()
+    {
+        $service = LoginService::singleton();
+        $method = (new ReflectionClass(LoginService::class))->getMethod('addLeadingSlash');
+
+        $this->assertEquals('/path/to/dest', $method->invoke($service, 'path/to/dest'));
+        $this->assertEquals('/already/has/slash', $method->invoke($service, '/already/has/slash'));
+        $this->assertEquals('/', $method->invoke($service, ''));
+        $this->assertEquals('/', $method->invoke($service, '/'));
     }
 }
