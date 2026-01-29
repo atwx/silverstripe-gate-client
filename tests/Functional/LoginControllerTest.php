@@ -107,8 +107,9 @@ PEM;
 
         // Should be redirected to /admin
         $this->assertEquals(200, $response->getStatusCode());
+        $redirectUrl = singleton(LoginService::class)->getRedirectUrl();
         $this->assertStringContainsString(
-            '<meta http-equiv="refresh" content="0; url=/admin">',
+            '<meta http-equiv="refresh" content="0; url=' . $redirectUrl . '">',
             $response->getBody()
         );
     }
