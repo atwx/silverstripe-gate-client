@@ -32,12 +32,5 @@
         }
     },
     "minimum-stability": "dev",
-    "prefer-stable": true,
-    "config": {
-        "allow-plugins": {
-            "composer/installers": false,
-            "phpstan/extension-installer": false,
-            "silverstripe/vendor-plugin": false
-        }
-    }
+    "prefer-stable": true
 }
