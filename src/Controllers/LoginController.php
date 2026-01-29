@@ -6,7 +6,7 @@ use Atwx\SilverGateClient\Services\LoginService;
 use Atwx\SilverGateClient\Services\TokenService;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\HTTPRequest;
-use SilverStripe\Model\ArrayData;
+use SilverStripe\View\ArrayData;
 
 class LoginController extends Controller
 {

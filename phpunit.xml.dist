@@ -2,9 +2,7 @@
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
          bootstrap="vendor/silverstripe/framework/tests/bootstrap.php"
-         cacheDirectory=".phpunit.cache"
          executionOrder="depends,defects"
-         shortenArraysForExportThreshold="10"
          beStrictAboutOutputDuringTests="true"
          failOnRisky="true"
          failOnWarning="true"
@@ -14,10 +12,4 @@
             <directory>tests/</directory>
         </testsuite>
     </testsuites>
-
-    <source ignoreIndirectDeprecations="true" restrictNotices="true" restrictWarnings="true">
-        <include>
-            <directory>src/</directory>
-        </include>
-    </source>
 </phpunit>
