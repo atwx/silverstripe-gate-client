@@ -1,5 +1,5 @@
 {
-    "name": "atwx/silvergate-client",
+    "name": "atwx/silverstripe-gate-client",
     "description": "A Silverstripe module to allow you to log into any of your Silverstripe sites from one place.",
     "type": "silverstripe-vendormodule",
     "keywords": [
@@ -9,7 +9,7 @@
         "management",
         "sites",
         "login",
-        "silvergate",
+        "silverstripe-gate",
         "atwx"
     ],
     "license": "BSD-3-Clause",

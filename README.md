@@ -1,17 +1,17 @@
-# SilverGate Client
+# Silverstripe Gate Client
 
 A SilverStripe module that lets you log into a SilverStripe site from a centralized system using signed JWTs and then redirects you into the CMS.
 
 In short: the module validates a signed JSON Web Token (JWT) passed via the URL. On successful validation a configured user (or the default admin) is automatically logged in and redirected to a configured destination URL.
 
-Use the [SilverGate Manager](https://github.com/atwx/silvergate-manager) on your admin instance to do so.
+Use the [Silverstripe Gate Manager](https://github.com/atwx/silverstripe-gate-manager) on your admin instance to do so.
 
 ## Installation
 
 This package is intended to be installed via Composer. From your project root:
 
 ```bash
-composer require atwx/silvergate-client
+composer require atwx/silverstripe-gate-client
 ```
 
 ## Configuration
@@ -25,7 +25,7 @@ Atwx\SilverGateClient\Services\TokenService:
     ...
     -----END PUBLIC KEY-----
 
-# One has to be specified
+# Login as admin is default
 Atwx\SilverGateClient\Services\LoginService:
   # Finds the current default admin or creates one if none exists
   login_as_default_admin: true
