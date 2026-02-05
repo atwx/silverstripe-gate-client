@@ -40,7 +40,7 @@ class LoginService
      *
      * @config
      */
-    private static bool $login_as_default_admin = false;
+    private static bool $login_as_default_admin = true;
 
     /**
      * The URL to redirect to after a successful login.
