@@ -83,6 +83,7 @@ PEM;
 
     public function testNoMemberFoundReturns403()
     {
+        Config::modify()->set(LoginService::class, 'login_as_default_admin', false);
         $token = JWT::encode(
             ['iat' => time()],
             self::$privateKey1,
