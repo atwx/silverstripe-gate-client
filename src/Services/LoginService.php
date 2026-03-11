@@ -5,6 +5,7 @@ namespace Atwx\SilverGateClient\Services;
 use SilverStripe\Admin\AdminRootController;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Config\Configurable;
+use SilverStripe\Core\Environment;
 use SilverStripe\Core\Extensible;
 use SilverStripe\Core\Injector\Injectable;
 use SilverStripe\Core\Injector\Injector;
@@ -43,11 +44,25 @@ class LoginService
     private static bool $login_as_default_admin = true;
 
     /**
+     * Whether to disable sudo mode for JWT-authenticated sessions.
+     * Can be overridden via SILVERGATECLIENT_DISABLE_SUDO_MODE env variable.
+     *
+     * @config
+     */
+    private static bool $disable_sudo_mode = false;
+
+    /**
      * The URL to redirect to after a successful login.
      *
      * @config
      */
     private static string $login_dest = '';
+
+    public function isDisableSudoMode(): bool
+    {
+        return (bool) (Environment::getEnv('SILVERGATECLIENT_DISABLE_SUDO_MODE')
+            ?: $this->config()->get('disable_sudo_mode'));
+    }
 
     public function findAndLogInMember(): ?Member
     {

@@ -1,0 +1,6 @@
+---
+name: silvergateclient-sudo-mode
+---
+SilverStripe\Security\SudoMode\SudoModeService:
+  extensions:
+    - Atwx\SilverGateClient\Extensions\SudoModeExtension

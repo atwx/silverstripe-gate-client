@@ -43,6 +43,10 @@ class LoginController extends Controller
             return $this->httpError(403, 'No valid user to login was found.');
         }
 
+        if (LoginService::singleton()->isDisableSudoMode()) {
+            $request->getSession()->set('jwt-authenticated', true);
+        }
+
         return ArrayData::create([
             'Link' => LoginService::singleton()->getRedirectUrl() ?: '/'
         ])->renderWith('Atwx\SilverGateClient\LoginRedirectPage');
