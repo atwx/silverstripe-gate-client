@@ -29,6 +29,16 @@ class TokenService
      */
     private static ?string $public_key = null;
 
+    /**
+     * The signing algorithm the token must use. This is fixed server-side and
+     * never derived from the token itself, to prevent algorithm-confusion
+     * attacks where an attacker crafts the header to select a weaker or
+     * symmetric algorithm.
+     *
+     * @config
+     */
+    private static string $algorithm = 'RS256';
+
     protected function getPublicKey()
     {
         return Environment::getEnv('SILVERGATECLIENT_PUBLIC_KEY') ?: $this->config()->get('public_key');
@@ -37,15 +47,12 @@ class TokenService
     public function validateJwt(string $jwt): bool
     {
         try {
-            $alg = $this->getJwtAlgorithm($jwt);
-            if (!$alg) {
-                return false;
-            }
+            $alg = $this->config()->get('algorithm');
             $key = new Key($this->getPublicKey(), $alg);
             $decoded = JWT::decode($jwt, $key);
 
             $now = time();
-            $tokenMaxAge = self::config()->get('token_max_age_seconds');
+            $tokenMaxAge = $this->config()->get('token_max_age_seconds');
             if (isset($decoded->iat) && $tokenMaxAge > 0 && ($now - $decoded->iat) > $tokenMaxAge) {
                 return false;
             }
@@ -54,20 +61,5 @@ class TokenService
         } catch (\Exception $e) {
             return false;
         }
-    }
-
-    private function getJwtAlgorithm(string $token): ?string
-    {
-        $tks = explode('.', $token);
-        if (count($tks) !== 3) {
-            return null;
-        }
-        list($headb64, $bodyb64, $cryptob64) = $tks;
-        $headerRaw = JWT::urlsafeB64Decode($headb64);
-        if (null === ($header = JWT::jsonDecode($headerRaw))) {
-            return null;
-        }
-        $alg = $header->alg ?? 'UNKNOWN';
-        return array_key_exists($alg, JWT::$supported_algs) ? $alg : null;
     }
 }

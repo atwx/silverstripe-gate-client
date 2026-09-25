@@ -173,4 +173,25 @@ PEM;
         $this->assertFalse($service->validateJwt('not.a.jwt'));
         $this->assertFalse($service->validateJwt('too.many.parts.in.this.token.string'));
     }
+
+    public function testValidateJwtRejectsSymmetricAlgorithmForgery()
+    {
+        // The configured algorithm is asymmetric (RS256), so a token must not be
+        // accepted just because it was "signed" with the public key using a
+        // symmetric algorithm read from the token header.
+        Config::modify()->set(TokenService::class, 'public_key', self::$publicKey1);
+        Config::modify()->set(TokenService::class, 'token_max_age_seconds', 60);
+        Config::modify()->set(TokenService::class, 'algorithm', 'RS256');
+
+        $payload = [
+            'sub' => 'attacker',
+            'iat' => time(),
+        ];
+
+        // Forge a token using the (public) key as an HMAC secret.
+        $jwt = JWT::encode($payload, self::$publicKey1, 'HS256');
+
+        $service = new TokenService();
+        $this->assertFalse($service->validateJwt($jwt));
+    }
 }

@@ -51,6 +51,9 @@ Atwx\SilverGateClient\Services\TokenService:
     -----END PUBLIC KEY-----
   # defaults to 60, specifies how old the token is allowed to be before it is invalidated
   token_max_age_seconds: 60
+  # defaults to RS256, the signing algorithm tokens must use. This is enforced
+  # server-side; the value from the token header is never trusted.
+  algorithm: RS256
 
 Atwx\SilverGateClient\Services\LoginService:
   member_id: 1
