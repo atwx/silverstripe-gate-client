@@ -38,7 +38,7 @@ class LoginController extends Controller
             return $this->httpError(403, 'Token is invalid or expired.');
         }
 
-        $loginMember = LoginService::singleton()->findAndLogInMember();
+        $loginMember = LoginService::singleton()->findAndLogInMember($request);
         if (!$loginMember) {
             return $this->httpError(403, 'No valid user to login was found.');
         }

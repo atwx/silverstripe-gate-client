@@ -7,6 +7,8 @@ use SilverStripe\Dev\SapphireTest;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\DefaultAdminService;
+use SilverStripe\Security\LoginAttempt;
+use SilverStripe\ORM\FieldType\DBDatetime;
 use Atwx\SilverGateClient\Services\LoginService;
 use SilverStripe\Security\Security;
 
@@ -112,6 +114,62 @@ class LoginServiceTest extends SapphireTest
         $this->assertEquals($member->ID, $returned->ID);
         $this->assertInstanceOf(Member::class, $current);
         $this->assertEquals($member->ID, $current->ID);
+    }
+
+    public function testFindAndLogInMemberResetsLockout()
+    {
+        Config::modify()->set(Member::class, 'lock_out_after_incorrect_logins', 3);
+        Config::modify()->set(Member::class, 'lock_out_delay_mins', 15);
+
+        $member = $this->createLockedOutMember('locked@example.test');
+        $this->assertTrue($member->isLockedOut());
+
+        Config::modify()->set(LoginService::class, 'member_id', $member->ID);
+
+        $returned = LoginService::singleton()->findAndLogInMember();
+
+        $this->assertInstanceOf(Member::class, $returned);
+        $this->assertEquals($member->ID, Security::getCurrentUser()?->ID);
+        $this->assertFalse(Member::get()->byID($member->ID)->isLockedOut());
+    }
+
+    public function testFindAndLogInMemberKeepsLockoutWhenResetDisabled()
+    {
+        Config::modify()->set(Member::class, 'lock_out_after_incorrect_logins', 3);
+        Config::modify()->set(Member::class, 'lock_out_delay_mins', 15);
+        Config::modify()->set(LoginService::class, 'reset_lockout', false);
+
+        $member = $this->createLockedOutMember('stilllocked@example.test');
+
+        Config::modify()->set(LoginService::class, 'member_id', $member->ID);
+
+        $this->assertNull(LoginService::singleton()->findAndLogInMember());
+        $this->assertNull(Security::getCurrentUser());
+    }
+
+    protected function createLockedOutMember(string $email): Member
+    {
+        $member = Member::create([
+            'Email' => $email,
+            'FirstName' => 'Locked',
+            'Surname' => 'Out'
+        ]);
+        $member->LockedOutUntil = DBDatetime::create()->setValue(time() + 900)->Rfc2822();
+        $member->FailedLoginCount = 3;
+        $member->write();
+
+        // Failed attempts happened before the JWT login
+        $created = date('Y-m-d H:i:s', time() - 60);
+        for ($i = 0; $i < 3; $i++) {
+            $attempt = LoginAttempt::create();
+            $attempt->Created = $created;
+            $attempt->MemberID = $member->ID;
+            $attempt->Status = LoginAttempt::FAILURE;
+            $attempt->Email = $email;
+            $attempt->write();
+        }
+
+        return $member;
     }
 
     public function testAddLeadingSlash()

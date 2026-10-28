@@ -3,6 +3,7 @@
 namespace Atwx\SilverGateClient\Services;
 
 use SilverStripe\Admin\AdminRootController;
+use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Config\Configurable;
 use SilverStripe\Core\Environment;
@@ -11,6 +12,7 @@ use SilverStripe\Core\Injector\Injectable;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Security\DefaultAdminService;
 use SilverStripe\Security\IdentityStore;
+use SilverStripe\Security\LoginAttempt;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Permission;
 use SilverStripe\Security\Security;
@@ -52,6 +54,14 @@ class LoginService
     private static bool $disable_sudo_mode = false;
 
     /**
+     * Whether a valid JWT login lifts a lockout caused by failed password logins.
+     * The JWT proves the identity, so failed form attempts should not block it.
+     *
+     * @config
+     */
+    private static bool $reset_lockout = true;
+
+    /**
      * The URL to redirect to after a successful login.
      *
      * @config
@@ -64,15 +74,42 @@ class LoginService
             ?: $this->config()->get('disable_sudo_mode'));
     }
 
-    public function findAndLogInMember(): ?Member
+    public function findAndLogInMember(?HTTPRequest $request = null): ?Member
     {
         $member = $this->findMember();
-        if ($member && $member->canLogin()) {
+        if (!$member) {
+            return null;
+        }
+
+        if ($this->config()->get('reset_lockout') && $member->isLockedOut()) {
+            $this->resetLockout($member, $request);
+        }
+
+        if ($member->canLogin()) {
             $identityStore = Injector::inst()->get(IdentityStore::class);
-            $identityStore->logIn($member, false);
+            $identityStore->logIn($member, false, $request);
             return $member;
         }
         return null;
+    }
+
+    /**
+     * Clears both lockout mechanisms: the LockedOutUntil field and the
+     * LoginAttempt history, which is checked by Member::isLockedOut().
+     */
+    public function resetLockout(Member $member, ?HTTPRequest $request = null): void
+    {
+        $member->FailedLoginCount = 0;
+        $member->LockedOutUntil = null;
+        $member->write();
+
+        // A successful attempt among the most recent ones ends the lockout
+        $attempt = LoginAttempt::create();
+        $attempt->MemberID = $member->ID;
+        $attempt->Status = LoginAttempt::SUCCESS;
+        $attempt->Email = $member->Email;
+        $attempt->IP = $request?->getIP();
+        $attempt->write();
     }
 
     public function findMember(): ?Member

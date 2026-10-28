@@ -88,6 +88,17 @@ When enabled, a `jwt-authenticated` flag is set in the session after a successfu
 - The flag is cleared when the user logs out (session is destroyed).
 - Unlike normal sudo mode (which times out after 45 minutes), the bypass is active for the entire session. This is intentional for SSO users who cannot enter a password.
 
+## Lockout
+
+If a user is locked out after too many failed password logins (`Member.lock_out_after_incorrect_logins`), a valid JWT login lifts the lockout: `LockedOutUntil` and `FailedLoginCount` are reset and a successful `LoginAttempt` is recorded. The signed JWT proves the identity, so failed attempts in the login form (e.g. a wrong password saved in the browser) no longer block the login via Silvergate.
+
+To keep the lockout in place, disable this behaviour:
+
+```yaml
+Atwx\SilverGateClient\Services\LoginService:
+  reset_lockout: false
+```
+
 ## Route / Endpoint
 
 The module registers the route `/_silvergateclient` (see `_config/routes.yml`).
